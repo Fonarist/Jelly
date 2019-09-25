@@ -8,24 +8,50 @@ namespace Jelly
     public class Player : MonoBehaviour
     {
         private ActionSystem m_actionSystem;
-        private Field m_field;
-        private Mover m_mover;
 
         [SerializeField] private float m_maxScale;
         [SerializeField] private float m_minScale;
 
+        [SerializeField] private float m_speed;
+        [SerializeField] private Transform m_target;
+        [SerializeField] private GameObject m_camera;
+
+        [SerializeField] private Vector3 m_defPos;
+        [SerializeField] private Vector3 m_defPosCamera;
+
         void Awake()
         {
             m_actionSystem = FindObjectOfType<ActionSystem>();
-            m_field = FindObjectOfType<Field>();
-            m_mover = GetComponent<Mover>();
 
-            SetDefaultPosition();
+            SetDefaulTransform();
         }
 
-        public void SetDefaultPosition()
+        void FixedUpdate()
         {
-            m_mover.Clear();
+            if (m_actionSystem.GetGameState())
+            {
+                Vector3 direction = m_target.position - transform.position;
+                Vector3 offset = m_speed * Time.deltaTime * direction.normalized;
+
+                transform.position += offset;
+                m_camera.transform.position += offset;
+
+                float sqrMagnitude = offset.sqrMagnitude;
+                float sqrMagnitudeMax = direction.sqrMagnitude;
+
+                if (sqrMagnitude == 0 || sqrMagnitude > sqrMagnitudeMax || Mathf.Approximately(sqrMagnitudeMax, sqrMagnitude))
+                {
+                    transform.position = m_target.position;
+                }
+            }
+        }
+
+        public void SetDefaulTransform()
+        {
+            m_camera.transform.position = m_defPosCamera;
+
+            transform.position = m_defPos;
+            transform.localScale = new Vector3(1.0f, 1.0f, transform.localScale.z);
         }
 
         public void Grow(float percent)
@@ -55,13 +81,21 @@ namespace Jelly
             transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
         }
 
-        void OnTriggerEnter2D(Collider2D collision)
+        void OnCollisionEnter(Collision collision)
         {
-            if(collision.gameObject.tag == "Enemy")
+            if(collision.gameObject.tag == "Finish")
             {
-                m_actionSystem.ClearScore();
+                m_actionSystem.Win();
+            }
+        }
 
-                m_field.DeleteEnemies();
+        void OnTriggerEnter(Collider collision)
+        {
+            if (collision.gameObject.tag == "Enemy")
+            {
+                FindObjectOfType<ActionSystem>().SetGameState(false);
+                FindObjectOfType<MainMenu>().UpdateUI();
+                FindObjectOfType<Player>().SetDefaulTransform();
             }
         }
     }

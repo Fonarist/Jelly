@@ -7,8 +7,8 @@ namespace Jelly
     {
         private Player m_player;
         private ActionSystem m_actionSystem;
-        private GameManager m_gameManager;
 
+        [SerializeField] private float m_lenghtToStart;
         [SerializeField] private float m_distanceFullScale;
 
         private Vector3 m_pointStart;
@@ -20,7 +20,6 @@ namespace Jelly
         {
             m_player = FindObjectOfType<Player>();
             m_actionSystem = FindObjectOfType<ActionSystem>();
-            m_gameManager = FindObjectOfType<GameManager>();
 
             m_wasTouch = false;
         }
@@ -30,33 +29,25 @@ namespace Jelly
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Vector3 pos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.z);
-                if (m_actionSystem.GetGameState())
-                {
-                    m_pointStart = pos;
-                    m_wasTouch = true;
-                }
-                else if (!IsOnUI(pos))
-                {
-                    m_gameManager.Play();
-                }
+                m_pointStart = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.z);
             }
-            else if(Input.GetMouseButtonUp(0))
-            {
-                m_wasTouch = false;
-            }
-
-            if (m_wasTouch)
+            else if (Input.GetMouseButton(0))
             {
                 Vector3 pointEnd = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.z);
-
                 float curDist = pointEnd.y - m_pointStart.y;
-
-                Debug.Log(curDist);
-
-                m_player.Grow(curDist / m_distanceFullScale);
-
-                m_pointStart = pointEnd;
+                if (!m_actionSystem.GetGameState())
+                {
+                    if (Mathf.Abs(curDist) > m_lenghtToStart)
+                    {
+                        m_actionSystem.SetGameState(true);
+                        m_pointStart = pointEnd;
+                    }
+                }
+                else
+                {
+                    m_player.Grow(curDist / m_distanceFullScale);
+                    m_pointStart = pointEnd;
+                }
             }
         }
 

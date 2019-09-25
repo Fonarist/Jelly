@@ -7,10 +7,9 @@ namespace Jelly
     {
         public void GoToMenu()
         {
-            FindObjectOfType<Player>().SetDefaultPosition();
-            FindObjectOfType<Field>().DeleteEnemies();
             FindObjectOfType<ActionSystem>().SetGameState(false);
             FindObjectOfType<MainMenu>().UpdateUI();
+            FindObjectOfType<Player>().SetDefaulTransform();
         }
 
         public void Pause(bool state)

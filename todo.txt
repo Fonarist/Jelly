@@ -2,7 +2,7 @@ bugs:
 - 
 
 todo:
-- controls
+- enemies generation
+- turn the field
 - save
-- menu
 - ads

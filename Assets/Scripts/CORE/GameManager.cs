@@ -43,10 +43,8 @@ namespace Jelly
             SaveLoad.SaveGame(m_curProgress);
         }
 
-        public void Play()
+        public void LoadAP()
         {
-            m_actionSystem.SetGameState(true);
-
             FindObjectOfType<EnemyGenerator>().UpdateSetting();
             FindObjectOfType<MainMenu>().UpdateUI();
         }
@@ -57,6 +55,7 @@ namespace Jelly
             m_actionSystem.SetGameState(false);
 
             FindObjectOfType<MainMenu>().UpdateUI();
+            FindObjectOfType<Player>().SetDefaulTransform();
 
             SaveGame();
         }
