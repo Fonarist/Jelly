@@ -17,13 +17,19 @@ namespace Jelly
         [SerializeField] private GameObject m_camera;
 
         [SerializeField] private Vector3 m_defPos;
-        [SerializeField] private Vector3 m_defPosCamera;
+        private float m_offsetZCamera;
+
+        private Rigidbody m_body;
 
         void Awake()
         {
             m_actionSystem = FindObjectOfType<ActionSystem>();
+            m_body = GetComponent<Rigidbody>();
 
             SetDefaulTransform();
+
+            m_offsetZCamera = m_camera.transform.position.z - transform.position.z;
+
         }
 
         void FixedUpdate()
@@ -31,25 +37,16 @@ namespace Jelly
             if (m_actionSystem.GetGameState())
             {
                 Vector3 direction = m_target.position - transform.position;
-                Vector3 offset = m_speed * Time.deltaTime * direction.normalized;
+                m_body.velocity = new Vector3(
+                    m_speed * direction.normalized.x, m_body.velocity.y, m_speed * direction.normalized.z);
 
-                transform.position += offset;
-                m_camera.transform.position += offset;
-
-                float sqrMagnitude = offset.sqrMagnitude;
-                float sqrMagnitudeMax = direction.sqrMagnitude;
-
-                if (sqrMagnitude == 0 || sqrMagnitude > sqrMagnitudeMax || Mathf.Approximately(sqrMagnitudeMax, sqrMagnitude))
-                {
-                    transform.position = m_target.position;
-                }
+                m_camera.transform.position = new Vector3(
+                    m_camera.transform.position.x, m_camera.transform.position.x, transform.position.z + m_offsetZCamera);
             }
         }
 
         public void SetDefaulTransform()
         {
-            m_camera.transform.position = m_defPosCamera;
-
             transform.position = m_defPos;
             transform.localScale = new Vector3(1.0f, 1.0f, transform.localScale.z);
         }
@@ -58,7 +55,7 @@ namespace Jelly
         {
             float val = (m_maxScale - m_minScale) * percent;
 
-            float newXScale = transform.localScale.x + val;
+            float newXScale = transform.localScale.x - val;
             if(newXScale > m_maxScale)
             {
                 newXScale = m_maxScale;
@@ -68,7 +65,7 @@ namespace Jelly
                 newXScale = m_minScale;
             }
 
-            float newYScale = transform.localScale.y - val;
+            float newYScale = transform.localScale.y + val;
             if (newYScale > m_maxScale)
             {
                 newYScale = m_maxScale;
@@ -93,9 +90,8 @@ namespace Jelly
         {
             if (collision.gameObject.tag == "Enemy")
             {
-                FindObjectOfType<ActionSystem>().SetGameState(false);
-                FindObjectOfType<MainMenu>().UpdateUI();
-                FindObjectOfType<Player>().SetDefaulTransform();
+                m_body.AddForce(new Vector3(0.0f, 0.0f, -20.0f), ForceMode.Impulse);
+                Destroy(collision.gameObject);
             }
         }
     }
