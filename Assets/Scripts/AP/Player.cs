@@ -13,42 +13,74 @@ namespace Jelly
         [SerializeField] private float m_minScale;
 
         [SerializeField] private float m_speed;
-        [SerializeField] private Transform m_target;
-        [SerializeField] private GameObject m_camera;
 
-        [SerializeField] private Vector3 m_defPos;
-        private float m_offsetZCamera;
-
+        private Transform m_defTransform;
         private Rigidbody m_body;
+        private float m_stopTimer;
+
+        private int m_curDest;
+        private List<Vector3> m_destinations;
+
+        private float m_rotateTimer;
 
         void Awake()
         {
             m_actionSystem = FindObjectOfType<ActionSystem>();
             m_body = GetComponent<Rigidbody>();
 
-            SetDefaulTransform();
+            m_destinations = new List<Vector3>();
 
-            m_offsetZCamera = m_camera.transform.position.z - transform.position.z;
-
+            m_defTransform = transform;
+            m_stopTimer = 0.0f;
+            m_rotateTimer = 0.0f;
         }
 
         void FixedUpdate()
         {
             if (m_actionSystem.GetGameState())
             {
-                Vector3 direction = m_target.position - transform.position;
-                m_body.velocity = new Vector3(
-                    m_speed * direction.normalized.x, m_body.velocity.y, m_speed * direction.normalized.z);
+                if(m_stopTimer > 0.0f)
+                {
+                    m_stopTimer -= Time.deltaTime;
+                }
+                else
+                {
+                    Vector3 direction = m_destinations[m_curDest] - transform.position;
 
-                m_camera.transform.position = new Vector3(
-                    m_camera.transform.position.x, m_camera.transform.position.x, transform.position.z + m_offsetZCamera);
+                    m_body.velocity = new Vector3(m_speed * direction.normalized.x, m_body.velocity.y, m_speed * direction.normalized.z);
+
+                    if (direction.magnitude < 1.0f)
+                    {
+                        m_curDest++;
+                        m_rotateTimer = 0.5f;
+                    }
+                }
+
+                if(/*m_rotateTimer > 0.0f*/true)
+                {
+                    /*m_rotateTimer -= Time.deltaTime;
+                    if (m_rotateTimer <= 0.0f)
+                        m_rotateTimer = 0.0f;
+
+                    Vector3 direction = m_destinations[m_curDest] - transform.position;
+                    direction.Normalize();
+
+                    Quaternion deltaRotation = Quaternion.Euler(direction * Time.deltaTime * 100);
+                    m_body.MoveRotation(m_body.rotation * deltaRotation);*/
+
+                    //transform.LookAt(m_destinations[m_curDest]);
+                }
             }
         }
 
-        public void SetDefaulTransform()
+        public void SetDefaultTransform()
         {
-            transform.position = m_defPos;
-            transform.localScale = new Vector3(1.0f, 1.0f, transform.localScale.z);
+            transform.position = m_defTransform.position;
+            transform.rotation = m_defTransform.rotation;
+            transform.localScale = new Vector3(1.0f, 1.0f, m_defTransform.localScale.z);
+
+            m_destinations.Clear();
+            m_curDest = 0;
         }
 
         public void Grow(float percent)
@@ -78,6 +110,11 @@ namespace Jelly
             transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
         }
 
+        public void AddDestination(Vector3 pos)
+        {
+            m_destinations.Add(pos);
+        }
+
         void OnCollisionEnter(Collision collision)
         {
             if(collision.gameObject.tag == "Finish")
@@ -90,8 +127,13 @@ namespace Jelly
         {
             if (collision.gameObject.tag == "Enemy")
             {
-                m_body.AddForce(new Vector3(0.0f, 0.0f, -20.0f), ForceMode.Impulse);
+                m_body.AddForce(new Vector3(0.0f, 0.0f, -4.0f), ForceMode.Impulse);
                 Destroy(collision.gameObject);
+
+                if(m_stopTimer <= 0)
+                {
+                    m_stopTimer = 0.3f;
+                }
             }
         }
     }

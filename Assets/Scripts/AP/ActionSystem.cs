@@ -32,7 +32,7 @@ namespace Jelly
             }
             else
             {
-
+                m_gameManager.LoadMenu();
             }
         }
 

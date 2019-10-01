@@ -45,17 +45,23 @@ namespace Jelly
 
         public void LoadAP()
         {
+            FindObjectOfType<CameraMovement>().StartMove();
             FindObjectOfType<EnemyGenerator>().UpdateSetting();
             FindObjectOfType<MainMenu>().UpdateUI();
         }
 
+        public void LoadMenu()
+        {
+            FindObjectOfType<MainMenu>().UpdateUI();
+            FindObjectOfType<Player>().SetDefaultTransform();
+            FindObjectOfType<CameraMovement>().SetDefaultTransform();
+        }
+
         public void Win()
         {
-            m_curProgress.m_level++;
-            m_actionSystem.SetGameState(false);
+            LoadMenu();
 
-            FindObjectOfType<MainMenu>().UpdateUI();
-            FindObjectOfType<Player>().SetDefaulTransform();
+            m_curProgress.m_level++;
 
             SaveGame();
         }

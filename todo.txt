@@ -1,9 +1,13 @@
 bugs:
+- yPos of turn blocks
 
 todo:
-- camera speed
-- enemies break
+- turn on the field when movement. And Camera
 - enemies generation
-- turn the field
+- enemies break
+- formulas speed inc by level
+- money
 - save
 - ads
+- sound
+- effects

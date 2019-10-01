@@ -12,7 +12,6 @@ namespace Jelly
         [SerializeField] private float m_distanceFullScale;
 
         private Vector3 m_pointStart;
-        private bool m_wasTouch;
 
 
         // Use this for initialization
@@ -20,8 +19,6 @@ namespace Jelly
         {
             m_player = FindObjectOfType<Player>();
             m_actionSystem = FindObjectOfType<ActionSystem>();
-
-            m_wasTouch = false;
         }
 
         // Update is called once per frame

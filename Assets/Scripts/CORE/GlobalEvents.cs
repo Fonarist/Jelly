@@ -8,8 +8,6 @@ namespace Jelly
         public void GoToMenu()
         {
             FindObjectOfType<ActionSystem>().SetGameState(false);
-            FindObjectOfType<MainMenu>().UpdateUI();
-            FindObjectOfType<Player>().SetDefaulTransform();
         }
 
         public void Pause(bool state)
