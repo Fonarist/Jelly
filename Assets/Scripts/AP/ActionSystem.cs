@@ -41,6 +41,7 @@ namespace Jelly
 
         public void Win()
         {
+            m_gameState = false;
             m_gameManager.Win();
         }
     }

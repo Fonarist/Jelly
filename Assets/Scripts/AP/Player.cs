@@ -14,14 +14,13 @@ namespace Jelly
 
         [SerializeField] private float m_speed;
 
-        private Transform m_defTransform;
+        private Vector3 m_defPos;
         private Rigidbody m_body;
-        private float m_stopTimer;
 
         private int m_curDest;
         private List<Vector3> m_destinations;
 
-        private float m_rotateTimer;
+        private float m_reverseTimer;
 
         void Awake()
         {
@@ -30,54 +29,65 @@ namespace Jelly
 
             m_destinations = new List<Vector3>();
 
-            m_defTransform = transform;
-            m_stopTimer = 0.0f;
-            m_rotateTimer = 0.0f;
+            m_defPos = transform.position;
+            m_reverseTimer = 0.0f;
         }
 
         void FixedUpdate()
         {
-            if (m_actionSystem.GetGameState())
+            if (m_actionSystem.GetGameState() && m_destinations.Count > 0)
             {
-                if(m_stopTimer > 0.0f)
+                float speed = m_speed;
+                if (m_reverseTimer > 0.0f)
                 {
-                    m_stopTimer -= Time.deltaTime;
-                }
-                else
-                {
-                    Vector3 direction = m_destinations[m_curDest] - transform.position;
-
-                    m_body.velocity = new Vector3(m_speed * direction.normalized.x, m_body.velocity.y, m_speed * direction.normalized.z);
-
-                    if (direction.magnitude < 1.0f)
-                    {
-                        m_curDest++;
-                        m_rotateTimer = 0.5f;
-                    }
+                    m_reverseTimer -= Time.deltaTime;
+                    speed = -speed;
                 }
 
-                if(/*m_rotateTimer > 0.0f*/true)
+                Vector3 direction = m_destinations[m_curDest] - transform.position;
+
+                m_body.velocity = new Vector3(speed * direction.normalized.x, m_body.velocity.y, speed * direction.normalized.z);
+
+                if (direction.magnitude < 1.0f)
                 {
-                    /*m_rotateTimer -= Time.deltaTime;
-                    if (m_rotateTimer <= 0.0f)
-                        m_rotateTimer = 0.0f;
-
-                    Vector3 direction = m_destinations[m_curDest] - transform.position;
-                    direction.Normalize();
-
-                    Quaternion deltaRotation = Quaternion.Euler(direction * Time.deltaTime * 100);
-                    m_body.MoveRotation(m_body.rotation * deltaRotation);*/
-
-                    //transform.LookAt(m_destinations[m_curDest]);
+                    m_curDest++;
                 }
+
+                Vector3 front = transform.forward;
+                front.y = 0;
+                front.Normalize();
+
+                Vector3 vToTarget = m_destinations[m_curDest] - transform.position;
+                vToTarget.y = 0;
+                vToTarget.Normalize();
+
+                float angle = Vector3.Angle(front, vToTarget);
+
+                if(Vector3.Dot(front, vToTarget) < 0.0f)
+                {
+                    angle = 180 - angle;
+                }
+
+                Vector3 right = transform.right;
+                right.y = 0;
+                right.Normalize();
+                float rightAngle = Vector3.Angle(right, vToTarget);
+                if(rightAngle > 90)
+                {
+                    angle = -angle;
+                }
+
+                transform.Rotate(new Vector3(0, 1, 0), angle * Time.deltaTime * 13);
             }
         }
 
         public void SetDefaultTransform()
         {
-            transform.position = m_defTransform.position;
-            transform.rotation = m_defTransform.rotation;
-            transform.localScale = new Vector3(1.0f, 1.0f, m_defTransform.localScale.z);
+            m_body.velocity = new Vector3();
+
+            transform.position = m_defPos;
+            transform.rotation = new Quaternion();
+            transform.localScale = new Vector3(1.0f, 1.0f, transform.localScale.z);
 
             m_destinations.Clear();
             m_curDest = 0;
@@ -87,7 +97,7 @@ namespace Jelly
         {
             float val = (m_maxScale - m_minScale) * percent;
 
-            float newXScale = transform.localScale.x - val;
+            float newXScale = m_body.transform.localScale.x - val;
             if(newXScale > m_maxScale)
             {
                 newXScale = m_maxScale;
@@ -97,7 +107,7 @@ namespace Jelly
                 newXScale = m_minScale;
             }
 
-            float newYScale = transform.localScale.y + val;
+            float newYScale = m_body.transform.localScale.y + val;
             if (newYScale > m_maxScale)
             {
                 newYScale = m_maxScale;
@@ -107,7 +117,7 @@ namespace Jelly
                 newYScale = m_minScale;
             }
 
-            transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
+            m_body.transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
         }
 
         public void AddDestination(Vector3 pos)
@@ -127,13 +137,12 @@ namespace Jelly
         {
             if (collision.gameObject.tag == "Enemy")
             {
-                m_body.AddForce(new Vector3(0.0f, 0.0f, -4.0f), ForceMode.Impulse);
-                Destroy(collision.gameObject);
-
-                if(m_stopTimer <= 0)
+                if (m_reverseTimer <= 0)
                 {
-                    m_stopTimer = 0.3f;
+                    m_reverseTimer = 0.25f;
                 }
+
+                Destroy(collision.gameObject);
             }
         }
     }

@@ -1,8 +1,7 @@
 bugs:
-- yPos of turn blocks
+- bug with finish
 
 todo:
-- turn on the field when movement. And Camera
 - enemies generation
 - enemies break
 - formulas speed inc by level

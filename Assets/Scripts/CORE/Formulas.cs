@@ -8,7 +8,7 @@ namespace Jelly
         {
             int min = 3;
 
-            return min + (int)(lvl / 10) * 2;
+            return min + ((int)(lvl / 10)) * 2;
         }
     }
 }

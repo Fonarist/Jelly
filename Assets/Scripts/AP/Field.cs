@@ -19,7 +19,9 @@ namespace Jelly
 
         [SerializeField] private List<GameObject> m_blocksPref;
         [SerializeField] private GameObject m_blockLeftPref;
+        [SerializeField] private GameObject m_blockLeftAfterPref;
         [SerializeField] private GameObject m_blockRightPref;
+        [SerializeField] private GameObject m_blockRightAfterPref;
         [SerializeField] private GameObject m_blockFinishPref;
 
         [SerializeField] private Vector3 m_offsetBlock;
@@ -38,6 +40,17 @@ namespace Jelly
 
         void Start()
         {
+            Generate();
+        }
+
+        public void Reset()
+        {
+            for(int i = 0; i < m_objects.Count; ++i)
+            {
+                Destroy(m_objects[i]);
+            }
+            m_objects.Clear();
+
             Generate();
         }
 
@@ -66,13 +79,16 @@ namespace Jelly
                     finish.transform.position = new Vector3(prevBlockPos.x, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
 
                     m_player.AddDestination(finish.transform.position);
+
+                    m_objects.Add(finish);
                 }
                 else //turn
                 {
                     TurnType newTurn = TurnType.NONE;
                     if(prevTurn == TurnType.NONE)
                     {
-                        newTurn = Random.Range(0, 1) == 0 ? TurnType.LEFT : TurnType.RIGHT;
+                        int r = Random.Range(0, 2);
+                        newTurn = r == 0 ? TurnType.LEFT : TurnType.RIGHT;
                     }
                     else
                     {
@@ -81,14 +97,15 @@ namespace Jelly
 
                     if (newTurn == TurnType.LEFT)
                     {
-                        GameObject left = Instantiate(m_blockLeftPref, transform);
+                        GameObject left;
 
                         int rand = Random.Range(0, m_blocksPref.Count);
                         GameObject block = Instantiate(m_blocksPref[randF], transform);
 
                         if (prevTurn == TurnType.NONE)
                         {
-                            left.transform.position = new Vector3(prevBlockPos.x, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
+                            left = Instantiate(m_blockLeftPref, transform);
+                            left.transform.position = new Vector3(prevBlockPos.x, left.transform.position.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
 
                             block.transform.position = new Vector3(
                                 prevBlockPos.x - m_offsetBlock.z - m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
@@ -97,8 +114,8 @@ namespace Jelly
                         }
                         else
                         {
-                            left.transform.position = new Vector3(prevBlockPos.x + m_offsetBlock.z + m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z);
-                            left.transform.Rotate(new Vector3(1.0f, 0.0f, 0.0f), 180);
+                            left = Instantiate(m_blockLeftAfterPref, transform); 
+                            left.transform.position = new Vector3(prevBlockPos.x + m_offsetBlock.z + m_offsetTurnBlock, left.transform.position.y, prevBlockPos.z);
 
                             block.transform.position = new Vector3(
                                 prevBlockPos.x + m_offsetBlock.z + m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
@@ -113,14 +130,15 @@ namespace Jelly
                     }
                     else
                     {
-                        GameObject right = Instantiate(m_blockRightPref, transform);
+                        GameObject right;
 
                         int rand = Random.Range(0, m_blocksPref.Count);
                         GameObject block = Instantiate(m_blocksPref[randF], transform);
 
                         if (prevTurn == TurnType.NONE)
                         {
-                            right.transform.position = new Vector3(prevBlockPos.x, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
+                            right = Instantiate(m_blockRightPref, transform);
+                            right.transform.position = new Vector3(prevBlockPos.x, right.transform.position.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
 
                             block.transform.position = new Vector3(
                                 prevBlockPos.x + m_offsetBlock.z + m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
@@ -129,8 +147,8 @@ namespace Jelly
                         }
                         else
                         {
-                            right.transform.position = new Vector3(prevBlockPos.x - m_offsetBlock.z - m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z);
-                            right.transform.Rotate(new Vector3(1.0f, 0.0f, 0.0f), 180);
+                            right = Instantiate(m_blockRightAfterPref, transform);
+                            right.transform.position = new Vector3(prevBlockPos.x - m_offsetBlock.z - m_offsetTurnBlock, right.transform.position.y, prevBlockPos.z);
 
                             block.transform.position = new Vector3(
                                 prevBlockPos.x - m_offsetBlock.z - m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
@@ -145,12 +163,6 @@ namespace Jelly
                     }
                 }
             }
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }
