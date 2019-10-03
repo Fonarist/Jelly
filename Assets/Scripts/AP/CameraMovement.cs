@@ -24,7 +24,7 @@ namespace Jelly
             m_defPos = transform.position;
         }
 
-        public void SetDefaultTransform()
+        public void SetDefault()
         {
             transform.position = m_defPos;
 

@@ -44,5 +44,11 @@ namespace Jelly
             m_gameState = false;
             m_gameManager.Win();
         }
+
+        public void Lose()
+        {
+            m_gameState = false;
+            m_gameManager.LoadMenu();
+        }
     }
 }

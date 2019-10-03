@@ -2,11 +2,11 @@ bugs:
 - bug with finish
 
 todo:
-- enemies generation
-- enemies break
-- formulas speed inc by level
 - money
 - save
 - ads
-- sound
+- mainmenu sound
+- vibro
+- ui
+- texture
 - effects

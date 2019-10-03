@@ -52,9 +52,9 @@ namespace Jelly
         public void LoadMenu()
         {
             FindObjectOfType<MainMenu>().UpdateUI();
+            FindObjectOfType<Player>().SetDefault();
             FindObjectOfType<Field>().Reset();
-            FindObjectOfType<Player>().SetDefaultTransform();
-            FindObjectOfType<CameraMovement>().SetDefaultTransform();
+            FindObjectOfType<CameraMovement>().SetDefault();
 
         }
 

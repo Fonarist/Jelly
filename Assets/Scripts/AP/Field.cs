@@ -76,7 +76,18 @@ namespace Jelly
                 {
                     GameObject finish = Instantiate(m_blockFinishPref, transform);
 
-                    finish.transform.position = new Vector3(prevBlockPos.x, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
+                    if(prevTurn == TurnType.NONE)
+                    {
+                        finish.transform.position = new Vector3(prevBlockPos.x, prevBlockPos.y, prevBlockPos.z + m_offsetBlock.z + m_offsetTurnBlock);
+                    }
+                    else if(prevTurn == TurnType.LEFT)
+                    {
+                        finish.transform.position = new Vector3(prevBlockPos.x - m_offsetBlock.z - m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z);
+                    }
+                    else
+                    {
+                        finish.transform.position = new Vector3(prevBlockPos.x + m_offsetBlock.z + m_offsetTurnBlock, prevBlockPos.y, prevBlockPos.z);
+                    }
 
                     m_player.AddDestination(finish.transform.position);
 
@@ -100,7 +111,7 @@ namespace Jelly
                         GameObject left;
 
                         int rand = Random.Range(0, m_blocksPref.Count);
-                        GameObject block = Instantiate(m_blocksPref[randF], transform);
+                        GameObject block = Instantiate(m_blocksPref[rand], transform);
 
                         if (prevTurn == TurnType.NONE)
                         {
@@ -133,7 +144,7 @@ namespace Jelly
                         GameObject right;
 
                         int rand = Random.Range(0, m_blocksPref.Count);
-                        GameObject block = Instantiate(m_blocksPref[randF], transform);
+                        GameObject block = Instantiate(m_blocksPref[rand], transform);
 
                         if (prevTurn == TurnType.NONE)
                         {

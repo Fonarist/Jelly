@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Menu
   - Enemy
+  - Fall
   layers:
   - Default
   - TransparentFX
@@ -15,8 +16,8 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
+  - Enemy
+  - Field
   - 
   - 
   - 

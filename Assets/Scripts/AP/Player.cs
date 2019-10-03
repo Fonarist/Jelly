@@ -7,12 +7,13 @@ namespace Jelly
 {
     public class Player : MonoBehaviour
     {
+        private GameManager m_gameManager;
         private ActionSystem m_actionSystem;
 
         [SerializeField] private float m_maxScale;
         [SerializeField] private float m_minScale;
 
-        [SerializeField] private float m_speed;
+        private float m_speed;
 
         private Vector3 m_defPos;
         private Rigidbody m_body;
@@ -22,66 +23,81 @@ namespace Jelly
 
         private float m_reverseTimer;
 
+        private bool m_isFalling;
+
         void Awake()
         {
+            m_gameManager = FindObjectOfType<GameManager>();
             m_actionSystem = FindObjectOfType<ActionSystem>();
             m_body = GetComponent<Rigidbody>();
 
             m_destinations = new List<Vector3>();
 
             m_defPos = transform.position;
-            m_reverseTimer = 0.0f;
+
+            SetDefault();
         }
 
         void FixedUpdate()
         {
-            if (m_actionSystem.GetGameState() && m_destinations.Count > 0)
+            if (m_actionSystem.GetGameState())
             {
-                float speed = m_speed;
-                if (m_reverseTimer > 0.0f)
+                if(transform.position.y < -5.0f)
                 {
-                    m_reverseTimer -= Time.deltaTime;
-                    speed = -speed;
+                    m_actionSystem.Lose();
                 }
-
-                Vector3 direction = m_destinations[m_curDest] - transform.position;
-
-                m_body.velocity = new Vector3(speed * direction.normalized.x, m_body.velocity.y, speed * direction.normalized.z);
-
-                if (direction.magnitude < 1.0f)
+                else if (m_destinations.Count > 0 && !m_isFalling)
                 {
-                    m_curDest++;
+                    float speed = m_speed;
+                    if (m_reverseTimer > 0.0f)
+                    {
+                        m_reverseTimer -= Time.deltaTime;
+                        speed = -speed;
+                    }
+
+                    Vector3 direction = m_destinations[m_curDest] - transform.position;
+                    direction.y = 0;
+
+                    if (direction.magnitude < 0.3f)
+                    {
+                        transform.position = new Vector3(m_destinations[m_curDest].x, transform.position.y, m_destinations[m_curDest].z);
+
+                        m_curDest++;
+
+                        direction = m_destinations[m_curDest] - transform.position;
+                        direction.y = 0;
+                    }
+
+                    m_body.velocity = new Vector3(speed * direction.normalized.x, m_body.velocity.y, speed * direction.normalized.z);
+
+                    Vector3 front = transform.forward;
+                    front.y = 0;
+                    front.Normalize();
+
+                    direction.Normalize();
+
+                    float angle = Vector3.Angle(front, direction);
+
+                    if (Vector3.Dot(front, direction) < 0.0f)
+                    {
+                        angle = 180 - angle;
+                    }
+
+                    Vector3 right = transform.right;
+                    right.y = 0;
+                    right.Normalize();
+                    float rightAngle = Vector3.Angle(right, direction);
+                    if (rightAngle > 90)
+                    {
+                        angle = -angle;
+                    }
+
+                    transform.Rotate(new Vector3(0, 1, 0), angle * Time.deltaTime * 13);
                 }
-
-                Vector3 front = transform.forward;
-                front.y = 0;
-                front.Normalize();
-
-                Vector3 vToTarget = m_destinations[m_curDest] - transform.position;
-                vToTarget.y = 0;
-                vToTarget.Normalize();
-
-                float angle = Vector3.Angle(front, vToTarget);
-
-                if(Vector3.Dot(front, vToTarget) < 0.0f)
-                {
-                    angle = 180 - angle;
-                }
-
-                Vector3 right = transform.right;
-                right.y = 0;
-                right.Normalize();
-                float rightAngle = Vector3.Angle(right, vToTarget);
-                if(rightAngle > 90)
-                {
-                    angle = -angle;
-                }
-
-                transform.Rotate(new Vector3(0, 1, 0), angle * Time.deltaTime * 13);
             }
         }
 
-        public void SetDefaultTransform()
+        public void SetDefault()
         {
             m_body.velocity = new Vector3();
 
@@ -91,6 +107,11 @@ namespace Jelly
 
             m_destinations.Clear();
             m_curDest = 0;
+
+            m_reverseTimer = 0.0f;
+            m_isFalling = false;
+
+            m_speed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
         }
 
         public void Grow(float percent)
@@ -127,22 +148,33 @@ namespace Jelly
 
         void OnCollisionEnter(Collision collision)
         {
-            if(collision.gameObject.tag == "Finish")
+            if (collision.gameObject.tag == "Finish")
             {
                 m_actionSystem.Win();
             }
-        }
-
-        void OnTriggerEnter(Collider collision)
-        {
-            if (collision.gameObject.tag == "Enemy")
+            else if (collision.gameObject.tag == "Enemy")
             {
                 if (m_reverseTimer <= 0)
                 {
                     m_reverseTimer = 0.25f;
                 }
 
-                Destroy(collision.gameObject);
+                Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
+
+                rb.constraints = RigidbodyConstraints.None;
+
+                /*Vector3 v = transform.forward * 10.0f;
+                v.y = 20.0f;
+                rb.AddForce(v, ForceMode.Impulse);*/
+
+                Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+
+                Destroy(collision.gameObject, 5.0f);
+            }
+            else if(collision.gameObject.tag == "Fall")
+            {
+                m_isFalling = true;
+                m_body.velocity = new Vector3();
             }
         }
     }
