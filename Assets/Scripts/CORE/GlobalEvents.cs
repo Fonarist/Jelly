@@ -33,10 +33,10 @@ namespace Jelly
             gameManager.ChangeMusicState();
         }
 
-        public void ChangeSoundState()
+        public void ChangeVibroState()
         {
             GameManager gameManager = FindObjectOfType<GameManager>();
-            gameManager.ChangeSoundState();
+            gameManager.ChangeVibroState();
         }
     }
 }

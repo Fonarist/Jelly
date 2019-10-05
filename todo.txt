@@ -1,24 +1,24 @@
 bugs:
 - bug with finish
+- stuck on turn
+- stuck on falling
 
 todo:
-- (maybe try impulse)smooth collision - 
-- projection on enemy
-- rush mode
-- result screen
-- ads
-- (?)mainmenu sound
-- vibro
+- (maybe try impulse)smooth collision
+- acceleration
+- (not beatiful)projection on enemy
+- (add vfx)rush mode
+- (find sound)mainmenu sound
+- (add button)vibro
 https://assetstore.unity.com/packages/tools/integration/nice-vibrations-108559
-- ui
-- save check
-- texture
-- change enemy scale
 - effects
 
 assets:
-- (wait Boris)gradient
 - (create ears)player
-- ui
-https://assetstore.unity.com/packages/2d/gui/icons/simple-ui-elements-53276
-https://assetstore.unity.com/packages/2d/gui/icons/simple-icon-pastel-tone-107568
+
+colors:
+- field
+- enemy
+- diamond
+
+- clean resourses

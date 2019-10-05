@@ -5,7 +5,7 @@ using UnityEngine.Advertisements;
 
 namespace Jelly
 {
-    public class AdsManager : MonoBehaviour
+    public class AdsManager : MonoBehaviour, IUnityAdsListener
     {
         private static AdsManager _instance = null;
 
@@ -38,6 +38,8 @@ namespace Jelly
 
         void Start()
         {
+            Advertisement.AddListener(this);
+
             Advertisement.Initialize(gameId, isAdsTestMode);
             StartCoroutine(ShowBannerWhenReady());
         }
@@ -50,6 +52,31 @@ namespace Jelly
             }
             Advertisement.Banner.Show(bannerPlacementId);
             Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
+        }
+
+        public void ShowAd()
+        {
+            Advertisement.Show(AdsManager.videoPlacementId);
+        }
+
+        public void OnUnityAdsReady(string placementId)
+        {
+
+        }
+
+        void IUnityAdsListener.OnUnityAdsDidFinish(string placementId, ShowResult showResult)
+        {
+            FindObjectOfType<MainMenu>().EnableFinalPanel();
+        }
+
+        public void OnUnityAdsDidError(string message)
+        {
+            // Log the error.
+        }
+
+        public void OnUnityAdsDidStart(string placementId)
+        {
+            // Optional actions to take when the end-users triggers an ad.
         }
     }
 }

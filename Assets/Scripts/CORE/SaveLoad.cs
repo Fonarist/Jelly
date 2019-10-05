@@ -13,7 +13,7 @@ namespace Jelly
             public int m_level;
             public int m_money;
             public bool m_isMusic;
-            public bool m_isSound;
+            public bool m_isVibro;
         }
 
         public SaveInfo m_saveInfo = new Save.SaveInfo();
@@ -66,7 +66,7 @@ namespace Jelly
             save.m_level = 1;
             save.m_money = 0;
             save.m_isMusic = true;
-            save.m_isSound = true;
+            save.m_isVibro = true;
 
             return save;
         }

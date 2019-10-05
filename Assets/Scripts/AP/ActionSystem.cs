@@ -9,17 +9,14 @@ namespace Jelly
         private GameManager m_gameManager;
 
         private bool m_gameState;
+        private bool m_isWin;
 
         void Start()
         {
             m_gameManager = FindObjectOfType<GameManager>();
 
             m_gameState = false;
-        }
-
-        void FixedUpdate()
-        {
-
+            m_isWin = false;
         }
 
         public void SetGameState(bool state)
@@ -38,17 +35,7 @@ namespace Jelly
 
         public bool GetGameState() { return m_gameState; }
 
-
-        public void Win()
-        {
-            m_gameState = false;
-            m_gameManager.Win();
-        }
-
-        public void Lose()
-        {
-            m_gameState = false;
-            m_gameManager.LoadMenu();
-        }
+        public void SetWinState(bool val) { m_isWin = val; }
+        public bool GetWinState() { return m_isWin; }
     }
 }

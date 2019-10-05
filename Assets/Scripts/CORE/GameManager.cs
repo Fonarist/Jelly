@@ -53,20 +53,18 @@ namespace Jelly
 
         public void LoadMenu()
         {
+            if(m_actionSystem.GetWinState())
+            {
+                m_curProgress.m_level++;
+                SaveGame();
+            }
+
+            Time.timeScale = 1;
             m_mainMenu.UpdateUI();
             FindObjectOfType<Player>().SetDefault();
             FindObjectOfType<Field>().Reset();
             FindObjectOfType<CameraMovement>().SetDefault();
 
-        }
-
-        public void Win()
-        {
-            LoadMenu();
-
-            m_curProgress.m_level++;
-
-            SaveGame();
         }
 
         public void AddMoney(int val)
@@ -97,9 +95,9 @@ namespace Jelly
             SaveGame();
         }
 
-        public void ChangeSoundState()
+        public void ChangeVibroState()
         {
-            m_curProgress.m_isSound = !m_curProgress.m_isSound;
+            m_curProgress.m_isVibro = !m_curProgress.m_isVibro;
             SaveGame();
         }
 
@@ -107,6 +105,6 @@ namespace Jelly
         public int GetLevel() { return m_curProgress.m_level; }
         public int GetMoney() { return m_curProgress.m_money; }
         public bool IsMusicEnabled() { return m_curProgress.m_isMusic; }
-        public bool IsSoundEnabled() { return m_curProgress.m_isSound; }
+        public bool IsVibroEnabled() { return m_curProgress.m_isVibro; }
     }
 }
