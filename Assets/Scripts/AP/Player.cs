@@ -13,6 +13,12 @@ namespace Jelly
         [SerializeField] private float m_maxScale;
         [SerializeField] private float m_minScale;
 
+        [SerializeField] private float m_additionalSpeed;
+        private float m_addSpeedTimer;
+
+        [SerializeField] private float m_reverseTime;
+        private float m_reverseTimer;
+
         private float m_speed;
 
         private Vector3 m_defPos;
@@ -21,7 +27,7 @@ namespace Jelly
         private int m_curDest;
         private List<Vector3> m_destinations;
 
-        private float m_reverseTimer;
+
 
         private bool m_isFalling;
 
@@ -42,7 +48,9 @@ namespace Jelly
         {
             if (m_actionSystem.GetGameState())
             {
-                if(transform.position.y < -5.0f)
+                UpdateSpeed();
+
+                if (transform.position.y < -5.0f)
                 {
                     m_actionSystem.Lose();
                 }
@@ -52,13 +60,15 @@ namespace Jelly
                     if (m_reverseTimer > 0.0f)
                     {
                         m_reverseTimer -= Time.deltaTime;
-                        speed = -speed;
+                        speed *= m_reverseTimer * m_reverseTime;
+                        speed *= -1;
                     }
+
 
                     Vector3 direction = m_destinations[m_curDest] - transform.position;
                     direction.y = 0;
 
-                    if (direction.magnitude < 0.3f)
+                    if (direction.magnitude < 0.4f)
                     {
                         transform.position = new Vector3(m_destinations[m_curDest].x, transform.position.y, m_destinations[m_curDest].z);
 
@@ -97,6 +107,20 @@ namespace Jelly
             }
         }
 
+        private void UpdateSpeed()
+        {
+            float needSpeed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel()) + m_additionalSpeed;
+            if(m_speed < needSpeed)
+            {
+                m_addSpeedTimer -= Time.deltaTime;
+                if(m_addSpeedTimer <= 0.0f)
+                {
+                    m_speed += 1.0f;
+                    m_addSpeedTimer = 2.0f;
+                }
+            }
+        }
+
         public void SetDefault()
         {
             m_body.velocity = new Vector3();
@@ -112,6 +136,8 @@ namespace Jelly
             m_isFalling = false;
 
             m_speed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
+
+            m_addSpeedTimer = 2.0f;
         }
 
         public void Grow(float percent)
@@ -156,7 +182,10 @@ namespace Jelly
             {
                 if (m_reverseTimer <= 0)
                 {
-                    m_reverseTimer = 0.25f;
+                    m_reverseTimer = m_reverseTime;
+                    /*Vector3 v = transform.forward * -10.0f;
+                    v.y = 1.5f;
+                    m_body.AddForce(v, ForceMode.Impulse);*/
                 }
 
                 Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
@@ -175,6 +204,11 @@ namespace Jelly
             {
                 m_isFalling = true;
                 m_body.velocity = new Vector3();
+            }
+            else if (collision.gameObject.tag == "Diamond")
+            {
+                m_gameManager.AddMoney(1);
+                Destroy(collision.gameObject);
             }
         }
     }

@@ -5,6 +5,7 @@ namespace Jelly
 {
     public class GameManager : MonoBehaviour
     {
+        private MainMenu m_mainMenu;
         private ActionSystem m_actionSystem;
         private Save.SaveInfo m_curProgress;
 
@@ -29,6 +30,7 @@ namespace Jelly
         private void InitGame()
         {
             m_actionSystem = FindObjectOfType<ActionSystem>();
+            m_mainMenu = FindObjectOfType<MainMenu>();
 
             LoadSave();
         }
@@ -46,12 +48,12 @@ namespace Jelly
         public void LoadAP()
         {
             FindObjectOfType<CameraMovement>().StartMove();
-            FindObjectOfType<MainMenu>().UpdateUI();
+            m_mainMenu.UpdateUI();
         }
 
         public void LoadMenu()
         {
-            FindObjectOfType<MainMenu>().UpdateUI();
+            m_mainMenu.UpdateUI();
             FindObjectOfType<Player>().SetDefault();
             FindObjectOfType<Field>().Reset();
             FindObjectOfType<CameraMovement>().SetDefault();
@@ -63,6 +65,15 @@ namespace Jelly
             LoadMenu();
 
             m_curProgress.m_level++;
+
+            SaveGame();
+        }
+
+        public void AddMoney(int val)
+        {
+            m_curProgress.m_money += val;
+
+            m_mainMenu.UpdateMoney();
 
             SaveGame();
         }
@@ -94,6 +105,7 @@ namespace Jelly
 
         public bool IsInAP() { return m_actionSystem.GetGameState(); }
         public int GetLevel() { return m_curProgress.m_level; }
+        public int GetMoney() { return m_curProgress.m_money; }
         public bool IsMusicEnabled() { return m_curProgress.m_isMusic; }
         public bool IsSoundEnabled() { return m_curProgress.m_isSound; }
     }

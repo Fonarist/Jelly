@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3772123099884275806}
   - component: {fileID: 3772123099884275807}
   m_Layer: 9
-  m_Name: Block
+  m_Name: BlockOriginal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,7 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3772123099884275800}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.62, z: 50}
   m_LocalScale: {x: 5, y: 0.2, z: 100}
   m_Children: []
@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 00f004c4e139dff44ad5204e6b170eb2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,7 +85,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3772123099884275800}
-  m_Material: {fileID: 13400000, guid: 22f2ab2a110c1434d8fef99c78d134c1, type: 2}
+  m_Material: {fileID: 13400000, guid: c0eea5a2f43f31a42a1fbe028fd0c191, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2

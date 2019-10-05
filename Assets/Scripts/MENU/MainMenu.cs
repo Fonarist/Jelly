@@ -15,6 +15,7 @@ namespace Jelly
         [SerializeField] private GameObject m_buttonPause;
 
         [SerializeField] private Slider m_progress;
+        [SerializeField] private Text m_money;
 
         void Start()
         {
@@ -49,11 +50,18 @@ namespace Jelly
             }
 
             UpdateBar(0.0f);
+            UpdateMoney();
         }
 
         public void UpdateBar(float ration)
         {
             m_progress.value = ration;
+        }
+
+        public void UpdateMoney()
+        {
+            m_money.text = "";
+            m_money.text += m_gameManager.GetMoney();
         }
     }
 }

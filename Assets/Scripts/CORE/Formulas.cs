@@ -13,8 +13,8 @@ namespace Jelly
 
         public static int CalculatePlayerSpeed(int lvl)
         {
-            int min = 18;
-            int max = 30;
+            int min = 10;
+            int max = 25;
 
             int speed = min + (int)(lvl / 2);
             if(speed > max)

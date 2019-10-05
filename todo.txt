@@ -2,10 +2,9 @@ bugs:
 - bug with finish
 
 todo:
-- increase speed on level
+- (maybe try impulse)smooth collision - 
 - projection on enemy
 - rush mode
-- money(diamond)
 - result screen
 - ads
 - (?)mainmenu sound
@@ -18,14 +17,8 @@ https://assetstore.unity.com/packages/tools/integration/nice-vibrations-108559
 - effects
 
 assets:
-- diamond
-https://assetstore.unity.com/packages/3d/props/simple-gems-ultimate-animated-customizable-pack-73764
-- gradient
-- finish
-- field texture
-- enemy
-https://assetstore.unity.com/packages/2d/textures-materials/floors/essential-grounds-47099
-- player
+- (wait Boris)gradient
+- (create ears)player
 - ui
 https://assetstore.unity.com/packages/2d/gui/icons/simple-ui-elements-53276
 https://assetstore.unity.com/packages/2d/gui/icons/simple-icon-pastel-tone-107568
