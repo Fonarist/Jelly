@@ -35,6 +35,7 @@ namespace Jelly
         private float m_rushModeTimer;
         private bool m_isInRushMode;
         private bool m_wasInRushMode;
+        private int m_rushModeProgress;
 
         private float m_speed;
 
@@ -47,6 +48,8 @@ namespace Jelly
         private bool m_isFalling;
 
         private float m_finishTimer;
+
+        private float m_enemyPassedTimer;
 
         void Awake()
         {
@@ -95,7 +98,21 @@ namespace Jelly
                         UpdateRushMode();
 
                         UpdateMovement();
+
+                        UpdatePassedEnemies();
                     }
+                }
+            }
+        }
+
+        private void UpdatePassedEnemies()
+        {
+            if(m_enemyPassedTimer > 0.0f)
+            {
+                m_enemyPassedTimer -= Time.deltaTime;
+                if(m_enemyPassedTimer <= 0.0f)
+                {
+                    m_rushModeProgress++;
                 }
             }
         }
@@ -129,8 +146,6 @@ namespace Jelly
             {
                 m_speed = needSpeed;
             }
-
-            Debug.Log(m_speed);
         }
 
         private void UpdateProjection()
@@ -144,7 +159,6 @@ namespace Jelly
 
                 return;
             }
-
 
             LayerMask masks = LayerMask.GetMask("Enemy");
 
@@ -170,14 +184,11 @@ namespace Jelly
             if(m_wasInRushMode)
                 return;
 
-            if(m_rushModeTimer > 0)
-            {
-                m_rushModeTimer -= Time.deltaTime;
-            }
-
             if (m_isInRushMode)
             {
-                if(m_rushModeTimer <= 0)
+                m_rushModeTimer -= Time.deltaTime;
+
+                if (m_rushModeTimer <= 0)
                 {
                     m_mainMenu.UpdateBar(-1.0f);
 
@@ -196,7 +207,7 @@ namespace Jelly
             }
             else
             {
-                if (m_rushModeTimer <= 0)
+                if (m_rushModeProgress == 5)
                 {
                     m_isInRushMode = true;
                     m_rushModeTimer = m_rushModeTime;
@@ -207,9 +218,8 @@ namespace Jelly
                     m_backRush.SetActive(true);
                 }
 
-                m_mainMenu.UpdateBar(1.0f - m_rushModeTimer / m_rushModeTime);
+                m_mainMenu.UpdateBar(m_rushModeProgress / 5.0f);
             }
-
         }
 
         private void UpdateMovement()
@@ -286,6 +296,7 @@ namespace Jelly
             m_rushModeTimer = m_rushModeTime;
             m_isInRushMode = false;
             m_wasInRushMode = false;
+            m_rushModeProgress = 0;
 
             m_speed = 0.0f;
 
@@ -296,6 +307,7 @@ namespace Jelly
             m_back.SetActive(true);
 
             m_finishTimer = 0.0f;
+            m_enemyPassedTimer = 0.0f;
 
             m_needSpeed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
         }
@@ -343,6 +355,8 @@ namespace Jelly
                 m_body.velocity = new Vector3();
                 m_actionSystem.SetWinState(true);
 
+                transform.position = collision.gameObject.transform.position;
+
                 Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
                 Destroy(collision.gameObject);
             }
@@ -386,11 +400,14 @@ namespace Jelly
 
                     Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
                     Destroy(collision.gameObject, 5.0f);
+
+                    m_enemyPassedTimer = 0.0f;
+                    m_rushModeProgress = 0;
                 }
 
                 if(m_gameManager.IsVibroEnabled())
                 {
-                    Handheld.Vibrate();
+                    //Handheld.Vibrate();
                 }
             }
             else if(collision.gameObject.tag == "Fall")
@@ -404,6 +421,11 @@ namespace Jelly
 
                 m_gameManager.AddMoney(1);
                 Destroy(collision.gameObject);
+            }
+            else if(collision.gameObject.tag == "EnemyPassed")
+            {
+                m_enemyPassedTimer = 0.1f;
+                Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
             }
         }
     }

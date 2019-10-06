@@ -1,8 +1,4 @@
 bugs:
-- bug with finish
-- stuck on turn
-- stuck on falling
-- miss
 
 todo:
 - text after succses enemy
@@ -10,6 +6,3 @@ todo:
 effects:
 - speed idle player
 - inc projection after pass
-
-assets:
-- (create ears)player
