@@ -37,6 +37,8 @@ namespace Jelly
         private bool m_wasInRushMode;
         private int m_rushModeProgress;
 
+        [SerializeField] private FloatingText m_textPref;
+
         private float m_speed;
 
         private Vector3 m_defPos;
@@ -107,12 +109,16 @@ namespace Jelly
 
         private void UpdatePassedEnemies()
         {
-            if(m_enemyPassedTimer > 0.0f)
+            if(m_enemyPassedTimer > 0.0f && !m_isInRushMode && !m_wasInRushMode)
             {
                 m_enemyPassedTimer -= Time.deltaTime;
                 if(m_enemyPassedTimer <= 0.0f)
                 {
                     m_rushModeProgress++;
+
+                    FloatingText textF = Instantiate<FloatingText>(m_textPref, GameObject.Find("FloatingTextParent").transform);
+
+                    textF.SetText("Exellent x" + m_rushModeProgress);
                 }
             }
         }

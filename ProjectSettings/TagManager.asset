@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Fall
   - Diamond
+  - FxTemporaire
+  - EnemyPassed
   layers:
   - Default
   - TransparentFX
@@ -21,7 +23,7 @@ TagManager:
   - Field
   - Rush
   - Finish
-  - 
+  - EnemyPassed
   - 
   - 
   - 
