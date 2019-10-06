@@ -10,12 +10,16 @@ namespace Jelly
         private GameManager m_gameManager;
         private ActionSystem m_actionSystem;
         private MainMenu m_mainMenu;
+        private VfxManager m_vfxManager;
 
         [SerializeField] private float m_maxScale;
         [SerializeField] private float m_minScale;
 
+        [SerializeField] private float m_acc;
         [SerializeField] private float m_additionalSpeed;
+        private float m_leftAddSpeed;
         private float m_addSpeedTimer;
+        private float m_needSpeed;
 
         [SerializeField] private float m_reverseTime;
         private float m_reverseTimer;
@@ -24,6 +28,8 @@ namespace Jelly
         [SerializeField] private GameObject m_projBoxPref;
         private GameObject m_projectionBox;
 
+        [SerializeField] private GameObject m_back;
+        [SerializeField] private GameObject m_backRush;
         [SerializeField] private float m_rushModeTime;
         [SerializeField] private RushCollider m_rushModeCollider;
         private float m_rushModeTimer;
@@ -34,21 +40,22 @@ namespace Jelly
 
         private Vector3 m_defPos;
         private Rigidbody m_body;
-        private BoxCollider m_collider;
 
         private int m_curDest;
         private List<Vector3> m_destinations;
 
         private bool m_isFalling;
 
+        private float m_finishTimer;
+
         void Awake()
         {
             m_gameManager = FindObjectOfType<GameManager>();
             m_actionSystem = FindObjectOfType<ActionSystem>();
             m_mainMenu = FindObjectOfType<MainMenu>();
+            m_vfxManager = FindObjectOfType<VfxManager>();
 
             m_body = GetComponent<Rigidbody>();
-            m_collider = FindObjectOfType<BoxCollider>();
 
             m_destinations = new List<Vector3>();
 
@@ -61,43 +68,83 @@ namespace Jelly
         {
             if (m_actionSystem.GetGameState())
             {
-                if (transform.position.y < -5.0f)
+                if(m_finishTimer > 0.0f)
                 {
-                    Time.timeScale = 0;
-                    m_actionSystem.SetWinState(false);
-                    FindObjectOfType<AdsManager>().ShowAd();
+                    m_finishTimer -= Time.deltaTime;
+
+                    if(m_finishTimer <= 0.0f)
+                    {
+                        Time.timeScale = 0;
+                        FindObjectOfType<AdsManager>().ShowAd();
+                    }
                 }
                 else
                 {
-                    UpdateSpeed();
+                    if (transform.position.y < -5.0f)
+                    {
+                        Time.timeScale = 0;
+                        m_actionSystem.SetWinState(false);
+                        FindObjectOfType<AdsManager>().ShowAd();
+                    }
+                    else
+                    {
+                        UpdateSpeed();
 
-                    UpdateProjection();
+                        UpdateProjection();
 
-                    UpdateRushMode();
+                        UpdateRushMode();
 
-                    UpdateMovement();
+                        UpdateMovement();
+                    }
                 }
             }
         }
 
         private void UpdateSpeed()
         {
-            float needSpeed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel()) + m_additionalSpeed;
-            if(m_speed < needSpeed)
+            if (m_addSpeedTimer > 0)
             {
                 m_addSpeedTimer -= Time.deltaTime;
-                if(m_addSpeedTimer <= 0.0f)
-                {
-                    m_speed += 1.0f;
-                    m_addSpeedTimer = 2.0f;
-                }
             }
+            else if(m_leftAddSpeed > 0.0f)
+            {
+                m_addSpeedTimer = 2.0f;
+
+                m_leftAddSpeed -= 1.0f;
+                m_needSpeed += 1.0f;
+            }
+
+            float needSpeed = m_needSpeed;
+
+            if (m_isInRushMode)
+            {
+                needSpeed *= 1.3f;
+                m_speed = needSpeed;
+            }
+            else if (m_speed < needSpeed)
+            {
+                m_speed += m_acc * Time.deltaTime;
+            }
+            else if(m_speed > needSpeed)
+            {
+                m_speed = needSpeed;
+            }
+
+            Debug.Log(m_speed);
         }
 
         private void UpdateProjection()
         {
             if (m_isInRushMode)
+            {
+                if (m_projectionBox)
+                {
+                    Destroy(m_projectionBox);
+                }
+
                 return;
+            }
+
 
             LayerMask masks = LayerMask.GetMask("Enemy");
 
@@ -136,6 +183,9 @@ namespace Jelly
 
                     m_rushModeCollider.Disable();
 
+                    m_backRush.SetActive(false);
+                    m_back.SetActive(true);
+
                     m_isInRushMode = false;
                     m_wasInRushMode = true;
                 }
@@ -152,6 +202,9 @@ namespace Jelly
                     m_rushModeTimer = m_rushModeTime;
 
                     m_rushModeCollider.Enable();
+
+                    m_back.SetActive(false);
+                    m_backRush.SetActive(true);
                 }
 
                 m_mainMenu.UpdateBar(1.0f - m_rushModeTimer / m_rushModeTime);
@@ -163,56 +216,56 @@ namespace Jelly
         {
             if (m_destinations.Count > 0 && !m_isFalling)
             {
-                float speed = m_speed;
                 if (m_reverseTimer > 0.0f)
                 {
                     m_reverseTimer -= Time.deltaTime;
-                    speed *= m_reverseTimer * m_reverseTime;
-                    speed *= -1;
                 }
-
-
-                Vector3 direction = m_destinations[m_curDest] - transform.position;
-                direction.y = 0;
-
-                if (direction.magnitude < 0.4f)
+                else
                 {
-                    transform.position = new Vector3(m_destinations[m_curDest].x, transform.position.y, m_destinations[m_curDest].z);
-
-                    m_curDest++;
-
-                    if (m_curDest >= m_destinations.Count)
-                        m_curDest = 0;
-
-                    direction = m_destinations[m_curDest] - transform.position;
+                    Vector3 direction = m_destinations[m_curDest] - transform.position;
                     direction.y = 0;
+
+                    if (direction.magnitude < 0.6f)
+                    {
+                        transform.position = new Vector3(m_destinations[m_curDest].x, transform.position.y, m_destinations[m_curDest].z);
+
+                        m_curDest++;
+
+                        if (m_curDest >= m_destinations.Count)
+                        {
+                            return;
+                        }
+
+                        direction = m_destinations[m_curDest] - transform.position;
+                        direction.y = 0;
+                    }
+
+                    m_body.velocity = new Vector3(m_speed * direction.normalized.x, m_body.velocity.y, m_speed * direction.normalized.z);
+
+                    Vector3 front = transform.forward;
+                    front.y = 0;
+                    front.Normalize();
+
+                    direction.Normalize();
+
+                    float angle = Vector3.Angle(front, direction);
+
+                    if (Vector3.Dot(front, direction) < 0.0f)
+                    {
+                        angle = 180 - angle;
+                    }
+
+                    Vector3 right = transform.right;
+                    right.y = 0;
+                    right.Normalize();
+                    float rightAngle = Vector3.Angle(right, direction);
+                    if (rightAngle > 90)
+                    {
+                        angle = -angle;
+                    }
+
+                    transform.Rotate(new Vector3(0, 1, 0), angle * Time.deltaTime * 13);
                 }
-
-                m_body.velocity = new Vector3(speed * direction.normalized.x, m_body.velocity.y, speed * direction.normalized.z);
-
-                Vector3 front = transform.forward;
-                front.y = 0;
-                front.Normalize();
-
-                direction.Normalize();
-
-                float angle = Vector3.Angle(front, direction);
-
-                if (Vector3.Dot(front, direction) < 0.0f)
-                {
-                    angle = 180 - angle;
-                }
-
-                Vector3 right = transform.right;
-                right.y = 0;
-                right.Normalize();
-                float rightAngle = Vector3.Angle(right, direction);
-                if (rightAngle > 90)
-                {
-                    angle = -angle;
-                }
-
-                transform.Rotate(new Vector3(0, 1, 0), angle * Time.deltaTime * 13);
             }
         }
 
@@ -234,9 +287,17 @@ namespace Jelly
             m_isInRushMode = false;
             m_wasInRushMode = false;
 
-            m_speed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
+            m_speed = 0.0f;
 
             m_addSpeedTimer = 2.0f;
+            m_leftAddSpeed = m_additionalSpeed;
+
+            m_backRush.SetActive(false);
+            m_back.SetActive(true);
+
+            m_finishTimer = 0.0f;
+
+            m_needSpeed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
         }
 
         public void Grow(float percent)
@@ -275,10 +336,15 @@ namespace Jelly
         {
             if (collision.gameObject.tag == "Finish")
             {
-                Time.timeScale = 0;
+                m_vfxManager.Play(VfxManager.VfxType.FINISH_1, collision.gameObject.transform.position + new Vector3(0.0f, 1.0f, 0.0f));
+                m_vfxManager.Play(VfxManager.VfxType.FINISH_2, collision.gameObject.transform.position + new Vector3(0.0f, 3.5f, 0.0f));
+
+                m_finishTimer = 2.0f;
+                m_body.velocity = new Vector3();
                 m_actionSystem.SetWinState(true);
+
+                Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
                 Destroy(collision.gameObject);
-                FindObjectOfType<AdsManager>().ShowAd();
             }
             else if (collision.gameObject.tag == "Enemy")
             {
@@ -286,9 +352,19 @@ namespace Jelly
 
                 if (rb.constraints == RigidbodyConstraints.FreezePosition)
                 {
+                    m_vfxManager.Play(VfxManager.VfxType.COLLISION_ENEMY, collision.contacts[0].point);
+
                     if (m_reverseTimer <= 0)
                     {
                         m_reverseTimer = m_reverseTime;
+
+                        Vector3 vec = transform.forward.normalized * -8.0f;
+                        vec.y = 3.0f;
+
+                        m_body.velocity = new Vector3();
+                        m_body.AddForce(vec, ForceMode.Impulse);
+
+                        m_speed = 0;
                     }
 
                     if (!m_isInRushMode)
@@ -324,6 +400,8 @@ namespace Jelly
             }
             else if (collision.gameObject.tag == "Diamond")
             {
+                m_vfxManager.Play(VfxManager.VfxType.COLLISION_DIAMOND, collision.gameObject.transform.position);
+
                 m_gameManager.AddMoney(1);
                 Destroy(collision.gameObject);
             }

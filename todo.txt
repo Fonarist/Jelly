@@ -2,23 +2,14 @@ bugs:
 - bug with finish
 - stuck on turn
 - stuck on falling
+- miss
 
 todo:
-- (maybe try impulse)smooth collision
-- acceleration
-- (not beatiful)projection on enemy
-- (add vfx)rush mode
-- (find sound)mainmenu sound
-- (add button)vibro
-https://assetstore.unity.com/packages/tools/integration/nice-vibrations-108559
-- effects
+- text after succses enemy
+
+effects:
+- speed idle player
+- inc projection after pass
 
 assets:
 - (create ears)player
-
-colors:
-- field
-- enemy
-- diamond
-
-- clean resourses

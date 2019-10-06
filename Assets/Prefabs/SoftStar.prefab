@@ -12,10 +12,9 @@ GameObject:
   - component: {fileID: 1818852382161730797}
   - component: {fileID: 1808573123777588705}
   - component: {fileID: 1791838536694392443}
-  - component: {fileID: 1604278120821738682}
   - component: {fileID: 8165440802616174936}
   - component: {fileID: 7071249781016206288}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SoftStar
   m_TagString: Finish
   m_Icon: {fileID: 0}
@@ -105,19 +104,6 @@ MonoBehaviour:
   endScale: {x: 1.5, y: 1.5, z: 1.5}
   scaleSpeed: 1
   scaleRate: 0.5
---- !u!65 &1604278120821738682
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1822669557538751857}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 2.3472724, y: 0.44943988, z: 2.2323897}
-  m_Center: {x: -0.00000023841858, y: -0.00041776904, z: 0.11784127}
 --- !u!54 &8165440802616174936
 Rigidbody:
   m_ObjectHideFlags: 0

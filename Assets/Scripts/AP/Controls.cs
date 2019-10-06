@@ -24,6 +24,9 @@ namespace Jelly
         // Update is called once per frame
         void Update()
         {
+            if (Time.timeScale == 0.0f)
+                return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 m_pointStart = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.z);

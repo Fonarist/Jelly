@@ -37,8 +37,8 @@ namespace Jelly
                     Vector3 v = collision.transform.position - transform.position;
                     v.Normalize();
 
-                    if (v.y < 0.2f)
-                        v.y = 0.2f;
+                    if (v.y < 0.3f)
+                        v.y = 0.3f;
 
                     v *= 15.0f;
 
