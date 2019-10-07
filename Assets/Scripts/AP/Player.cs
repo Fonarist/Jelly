@@ -315,6 +315,8 @@ namespace Jelly
             m_finishTimer = 0.0f;
             m_enemyPassedTimer = 0.0f;
 
+            m_rushModeCollider.Disable();
+
             m_needSpeed = Formulas.CalculatePlayerSpeed(m_gameManager.GetLevel());
         }
 
@@ -342,7 +344,7 @@ namespace Jelly
                 newYScale = m_minScale;
             }
 
-            m_body.transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
+            transform.localScale = new Vector3(newXScale, newYScale, transform.localScale.z);
         }
 
         public void AddDestination(Vector3 pos)
@@ -430,7 +432,7 @@ namespace Jelly
             }
             else if(collision.gameObject.tag == "EnemyPassed")
             {
-                m_enemyPassedTimer = 0.1f;
+                m_enemyPassedTimer = 0.15f;
                 Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
             }
         }
